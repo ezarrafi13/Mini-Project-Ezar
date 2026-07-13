@@ -60,8 +60,11 @@ class StuntingPredictionController extends Controller
 
             $result = $this->service->predict($payload);
 
+            $namaBalita = $validated['nama_balita'] ?? 'Anak Anonim';
+
             $prediction = StuntingPrediction::create([
                 ...$validated,
+                'nama_balita'                  => $namaBalita,
                 'prediction_code'              => $result['prediction_code'],
                 'prediction_status'            => $result['prediction_status'],
                 'probability_stunting_percent' => $result['probability_stunting_percent'] ?? null,
@@ -70,17 +73,45 @@ class StuntingPredictionController extends Controller
 
             return redirect()
                 ->route('stunting.show', $prediction->id)
-                ->with('success', 'Prediksi berhasil disimpan!');
+                ->with('success', 'Prediksi berhasil diproses oleh model Machine Learning!');
 
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->withErrors(['api' => 'Gagal menghubungi API prediksi: ' . $e->getMessage()]);
+                ->withErrors(['api' => 'Gagal mendapatkan respons dari sistem AI: ' . $e->getMessage()]);
         }
     }
 
     public function show(StuntingPrediction $stunting)
     {
-        return view('stunting.show', compact('stunting'));
+
+        $recommendations = [];
+
+        if (strclean($stunting->prediction_status) == 'stunting' || $stunting->probability_stunting_percent > 50) {
+            $recommendations[] = "Segera jadwalkan konsultasi dengan Dokter Spesialis Anak atau Puskesmas terdekat.";
+            $recommendations[] = "Prioritaskan pemberian MPASI kaya protein hewani (telur, ikan, daging ayam) setiap hari.";
+        } else {
+            $recommendations[] = "Pertahankan pola makan bergizi seimbang dan pantau tumbuh kembang di Posyandu setiap bulan.";
+        }
+
+        if ($stunting->asi_eksklusif === 'Tidak' && $stunting->usia_bulan <= 6) {
+            $recommendations[] = "Optimalkan konseling laktasi untuk mendukung kecukupan nutrisi bayi di bawah 6 bulan.";
+        }
+
+        if ($stunting->protein_harian < 20) {
+            $recommendations[] = "Pemberian asupan protein harian berada di bawah ambang batas ideal. Tambahkan sumber protein pada menu utama.";
+        }
+
+        if ($stunting->riwayat_diare > 3) {
+            $recommendations[] = "Frekuensi terjadinya infeksi pencernaan cukup tinggi. Evaluasi kebersihan air minum dan sanitasi lingkungan rumah.";
+        }
+
+        $statusColor = (strclean($stunting->prediction_status) == 'stunting') ? 'danger' : 'success';
+
+        return view('stunting.show', compact('stunting', 'recommendations', 'statusColor'));
     }
+}
+
+function strclean($string) {
+    return strtolower(trim($string));
 }

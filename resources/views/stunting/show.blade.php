@@ -1,70 +1,95 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hasil Prediksi Stunting</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen py-10">
-<div class="mx-auto px-4 max-w-lg">
+@extends('layouts.app')
 
-    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Hasil Prediksi Stunting</h1>
+@section('title', 'Detail Hasil Skrining - StuntGuard')
 
-    @if($stunting->prediction_code == 1)
-        <div class="bg-red-50 border-2 border-red-400 rounded-2xl p-8 mb-5 text-center shadow">
-            <p class="text-6xl mb-3">⚠️</p>
-            <h2 class="text-3xl font-bold text-red-700">STUNTING</h2>
-            <p class="text-red-500 mt-2 text-sm">Balita terdeteksi berisiko stunting. Segera konsultasi ke dokter.</p>
-        </div>
-    @else
-        <div class="bg-green-50 border-2 border-green-400 rounded-2xl p-8 mb-5 text-center shadow">
-            <p class="text-6xl mb-3">✅</p>
-            <h2 class="text-3xl font-bold text-green-700">TIDAK STUNTING</h2>
-            <p class="text-green-500 mt-2 text-sm">Pertumbuhan balita dalam kondisi normal.</p>
-        </div>
-    @endif
-
-    @if($stunting->probability_stunting_percent !== null)
-        <div class="bg-white rounded-xl shadow p-4 mb-5 text-center">
-            <p class="text-gray-500 text-sm mb-1">Probabilitas Stunting</p>
-            <p class="text-3xl font-bold {{ $stunting->prediction_code == 1 ? 'text-red-600' : 'text-green-600' }}">
-                {{ number_format($stunting->probability_stunting_percent, 2) }}%
-            </p>
-        </div>
-    @endif
-
-    <div class="bg-white rounded-xl shadow p-5 mb-5 text-sm text-gray-700 space-y-2">
-        <h3 class="font-semibold text-gray-800 mb-3 text-base">Detail Data</h3>
-        <div class="flex justify-between border-b pb-2"><span class="text-gray-500">Nama Balita</span><span class="font-medium">{{ $stunting->nama_balita ?? '-' }}</span></div>
-        <div class="flex justify-between border-b pb-2"><span class="text-gray-500">Usia</span><span class="font-medium">{{ $stunting->usia_bulan }} bulan</span></div>
-        <div class="flex justify-between border-b pb-2"><span class="text-gray-500">Jenis Kelamin</span><span class="font-medium">{{ $stunting->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</span></div>
-        <div class="flex justify-between border-b pb-2"><span class="text-gray-500">Berat Lahir</span><span class="font-medium">{{ $stunting->berat_lahir_kg }} kg</span></div>
-        <div class="flex justify-between border-b pb-2"><span class="text-gray-500">Panjang Lahir</span><span class="font-medium">{{ $stunting->panjang_lahir_cm }} cm</span></div>
-        <div class="flex justify-between border-b pb-2"><span class="text-gray-500">ASI Eksklusif</span><span class="font-medium">{{ $stunting->asi_eksklusif }}</span></div>
-        <div class="flex justify-between border-b pb-2"><span class="text-gray-500">Protein Harian</span><span class="font-medium">{{ $stunting->protein_harian }} g</span></div>
-        <div class="flex justify-between border-b pb-2"><span class="text-gray-500">Frekuensi Makan</span><span class="font-medium">{{ $stunting->frekuensi_makan }}x/hari</span></div>
-        <div class="flex justify-between border-b pb-2"><span class="text-gray-500">Tinggi Ibu</span><span class="font-medium">{{ $stunting->tinggi_ibu_cm }} cm</span></div>
-        <div class="flex justify-between border-b pb-2"><span class="text-gray-500">Riwayat Diare</span><span class="font-medium">{{ $stunting->riwayat_diare }} kali</span></div>
-        <div class="flex justify-between border-b pb-2"><span class="text-gray-500">Pendapatan Keluarga</span><span class="font-medium">Rp {{ number_format($stunting->pendapatan_keluarga, 0, ',', '.') }}</span></div>
-        <div class="flex justify-between border-b pb-2"><span class="text-gray-500">Sanitasi Layak</span><span class="font-medium">{{ $stunting->sanitasi_layak }}</span></div>
-        <div class="flex justify-between border-b pb-2"><span class="text-gray-500">Imunisasi Lengkap</span><span class="font-medium">{{ $stunting->imunisasi_lengkap }}</span></div>
-        <div class="flex justify-between border-b pb-2"><span class="text-gray-500">Risk Score</span><span class="font-medium">{{ $stunting->risk_score }}</span></div>
-        <div class="flex justify-between border-b pb-2"><span class="text-gray-500">Diprediksi oleh</span><span class="font-medium">{{ $stunting->predicted_by ?? '-' }}</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">Waktu</span><span class="font-medium">{{ $stunting->created_at->format('d M Y H:i') }}</span></div>
+@section('content')
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-slate-800">Detail Hasil Skrining</h1>
+        <p class="text-slate-500 text-sm mt-1">Laporan analitik dari model Machine Learning</p>
     </div>
-
-    <div class="flex gap-3">
-        <a href="{{ route('stunting.create') }}"
-           class="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition text-sm">
-            + Prediksi Baru
-        </a>
-        <a href="{{ route('stunting.index') }}"
-           class="flex-1 text-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 rounded-lg transition text-sm">
-            Riwayat
-        </a>
-    </div>
-
+    <a href="{{ route('stunting.index') }}" class="px-4 py-2 bg-white text-slate-600 rounded-lg border border-slate-200 hover:bg-slate-50 transition text-sm font-medium">
+        <i class="fas fa-arrow-left mr-2"></i> Kembali ke Riwayat
+    </a>
 </div>
-</body>
-</html>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-1 space-y-6">
+        <div class="bg-white rounded-2xl p-6 border-t-4 {{ $stunting->prediction_code == 1 ? 'border-red-500' : 'border-emerald-500' }} shadow-sm text-center">
+            @if($stunting->prediction_code == 1)
+                <div class="w-20 h-20 mx-auto bg-red-100 text-red-500 rounded-full flex items-center justify-center text-4xl mb-4 shadow-inner">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-red-600">STUNTING</h2>
+                <p class="text-slate-500 text-sm mt-2">Sistem mendeteksi risiko stunting pada balita ini. Diperlukan intervensi segera.</p>
+            @else
+                <div class="w-20 h-20 mx-auto bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center text-4xl mb-4 shadow-inner">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-emerald-600">TUMBUH NORMAL</h2>
+                <p class="text-slate-500 text-sm mt-2">Pertumbuhan balita dalam kondisi optimal dan sesuai standar usia.</p>
+            @endif
+
+            @if($stunting->probability_stunting_percent !== null)
+                <div class="mt-6 pt-6 border-t border-slate-100">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Probabilitas (Keyakinan Model)</p>
+                    <div class="text-3xl font-bold text-slate-700">{{ number_format($stunting->probability_stunting_percent, 1) }}%</div>
+                </div>
+            @endif
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-teal-50 rounded-bl-full -z-0"></div>
+            <h3 class="text-lg font-bold text-slate-800 mb-4 relative z-10 flex items-center">
+                <i class="fas fa-lightbulb text-amber-400 mr-2"></i> Rekomendasi AI
+            </h3>
+            
+            <ul class="space-y-3 relative z-10">
+                @forelse($recommendations ?? [] as $rek)
+                    <li class="flex items-start bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <i class="fas fa-arrow-circle-right text-teal-500 mt-1 mr-3"></i>
+                        <span class="text-sm text-slate-700 leading-relaxed">{{ $rek }}</span>
+                    </li>
+                @empty
+                    <li class="text-sm text-slate-500 italic">Tidak ada rekomendasi khusus. Pertahankan pola asuh saat ini.</li>
+                @endforelse
+            </ul>
+        </div>
+    </div>
+
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-bold text-slate-800"><i class="fas fa-notes-medical text-teal-600 mr-2"></i> Rekam Medis Input</h3>
+                <span class="text-xs text-slate-400">ID: #{{ $stunting->id }} &bull; {{ $stunting->created_at->format('d/m/Y H:i') }}</span>
+            </div>
+            
+            <div class="p-0">
+                <table class="w-full text-sm">
+                    <tbody class="divide-y divide-slate-100">
+                        <tr class="hover:bg-slate-50 transition-colors"><td class="px-6 py-3 text-slate-500 w-1/3">Nama Balita</td><td class="px-6 py-3 font-semibold text-slate-800">{{ $stunting->nama_balita ?? 'Anak Anonim' }}</td></tr>
+                        <tr class="hover:bg-slate-50 transition-colors"><td class="px-6 py-3 text-slate-500">Usia</td><td class="px-6 py-3 font-medium text-slate-700">{{ $stunting->usia_bulan }} bulan</td></tr>
+                        <tr class="hover:bg-slate-50 transition-colors"><td class="px-6 py-3 text-slate-500">Jenis Kelamin</td><td class="px-6 py-3 font-medium text-slate-700">{{ $stunting->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</td></tr>
+                        <tr class="hover:bg-slate-50 transition-colors"><td class="px-6 py-3 text-slate-500">Berat Lahir</td><td class="px-6 py-3 font-medium text-slate-700">{{ $stunting->berat_lahir_kg }} kg</td></tr>
+                        <tr class="hover:bg-slate-50 transition-colors"><td class="px-6 py-3 text-slate-500">Panjang Lahir</td><td class="px-6 py-3 font-medium text-slate-700">{{ $stunting->panjang_lahir_cm }} cm</td></tr>
+                        <tr class="hover:bg-slate-50 transition-colors"><td class="px-6 py-3 text-slate-500">ASI Eksklusif</td><td class="px-6 py-3 font-medium text-slate-700">{{ $stunting->asi_eksklusif }}</td></tr>
+                        <tr class="hover:bg-slate-50 transition-colors"><td class="px-6 py-3 text-slate-500">Protein Harian</td><td class="px-6 py-3 font-medium text-slate-700">{{ $stunting->protein_harian }} g</td></tr>
+                        <tr class="hover:bg-slate-50 transition-colors"><td class="px-6 py-3 text-slate-500">Frekuensi Makan</td><td class="px-6 py-3 font-medium text-slate-700">{{ $stunting->frekuensi_makan }}x sehari</td></tr>
+                        <tr class="hover:bg-slate-50 transition-colors"><td class="px-6 py-3 text-slate-500">Tinggi Ibu</td><td class="px-6 py-3 font-medium text-slate-700">{{ $stunting->tinggi_ibu_cm }} cm</td></tr>
+                        <tr class="hover:bg-slate-50 transition-colors"><td class="px-6 py-3 text-slate-500">Riwayat Diare</td><td class="px-6 py-3 font-medium text-slate-700">{{ $stunting->riwayat_diare }} kali</td></tr>
+                        <tr class="hover:bg-slate-50 transition-colors"><td class="px-6 py-3 text-slate-500">Sanitasi Layak</td><td class="px-6 py-3 font-medium text-slate-700">{{ $stunting->sanitasi_layak }}</td></tr>
+                        <tr class="hover:bg-slate-50 transition-colors"><td class="px-6 py-3 text-slate-500">Imunisasi Lengkap</td><td class="px-6 py-3 font-medium text-slate-700">{{ $stunting->imunisasi_lengkap }}</td></tr>
+                        <tr class="bg-slate-50"><td class="px-6 py-3 text-slate-500">Risk Score Model</td><td class="px-6 py-3 font-mono text-teal-600 font-bold">{{ $stunting->risk_score }}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end gap-3">
+            <a href="{{ route('stunting.create') }}" class="px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow-sm transition font-semibold text-sm">
+                <i class="fas fa-plus mr-2"></i> Prediksi Baru
+            </a>
+        </div>
+    </div>
+</div>
+@endsection
